@@ -2,15 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [cartCount] = useState(0);
   const [notifCount] = useState(2);
   const gold = "#D4A843";
+
+  // Sync activeTab with current route
+  useEffect(() => {
+    if (pathname === "/cart") setActiveTab("cart");
+    else if (pathname === "/profile") setActiveTab("profile");
+    else if (pathname === "/menu") setActiveTab("menu");
+    else setActiveTab("home");
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -25,11 +36,33 @@ export default function Navbar() {
     }, 50);
   };
 
+  const goToPage = (path: string, tab: string) => {
+    setActiveTab(tab);
+    router.push(path);
+  };
+
+  // Desktop nav links
   const navLinks = [
-    { href: "#categories",    label: "Menu"      },
-    { href: "#story",         label: "Our Story" },
-    { href: "#reviews",       label: "Reviews"   },
-    { href: "#order-section", label: "Order"     },
+    {
+      label: "Menu",
+      action: () => goToPage("/menu", "menu"),
+      href: "/menu",
+    },
+    {
+      label: "Our Story",
+      action: () => pathname === "/" ? goTo("#story", "home") : goToPage("/#story", "home"),
+      href: "#story",
+    },
+    {
+      label: "Reviews",
+      action: () => pathname === "/" ? goTo("#reviews", "home") : goToPage("/#reviews", "home"),
+      href: "#reviews",
+    },
+    {
+      label: "Order",
+      action: () => pathname === "/" ? goTo("#order-section", "home") : goToPage("/#order-section", "home"),
+      href: "#order-section",
+    },
   ];
 
   const logoColor  = isDark ? "#fff"                        : "#0D0B09";
@@ -48,7 +81,12 @@ export default function Navbar() {
 
   const tabs = [
     {
-      id: "home", label: "Home", target: "#hero",
+      id: "home",
+      label: "Home",
+      action: () => {
+        if (pathname === "/") goTo("#hero", "home");
+        else goToPage("/", "home");
+      },
       icon: (a: boolean) => (
         <svg width="22" height="22" fill="none" viewBox="0 0 24 24"
           stroke={a ? gold : mobIconCol} strokeWidth={a ? 2.2 : 1.8}>
@@ -58,7 +96,10 @@ export default function Navbar() {
       ),
     },
     {
-      id: "menu", label: "Menu", target: "#categories",
+      id: "menu",
+      label: "Menu",
+      // Always navigate to /menu page
+      action: () => goToPage("/menu", "menu"),
       icon: (a: boolean) => (
         <svg width="22" height="22" fill="none" viewBox="0 0 24 24"
           stroke={a ? gold : mobIconCol} strokeWidth={a ? 2.2 : 1.8}>
@@ -68,7 +109,9 @@ export default function Navbar() {
       ),
     },
     {
-      id: "cart", label: "Cart", target: "#order-section",
+      id: "cart",
+      label: "Cart",
+      action: () => goToPage("/cart", "cart"),
       icon: (a: boolean) => (
         <svg width="22" height="22" fill="none" viewBox="0 0 24 24"
           stroke={a ? gold : mobIconCol} strokeWidth={a ? 2.2 : 1.8}>
@@ -78,7 +121,9 @@ export default function Navbar() {
       ),
     },
     {
-      id: "profile", label: "Profile", target: "#story",
+      id: "profile",
+      label: "Profile",
+      action: () => goToPage("/profile", "profile"),
       icon: (a: boolean) => (
         <svg width="22" height="22" fill="none" viewBox="0 0 24 24"
           stroke={a ? gold : mobIconCol} strokeWidth={a ? 2.2 : 1.8}>
@@ -126,8 +171,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ══ DESKTOP NAV ══
-          NO display property in style — globals.css controls it via .nav-desktop */}
+      {/* ══ DESKTOP NAV ══ */}
       <nav
         className="nav-desktop"
         style={{
@@ -141,7 +185,6 @@ export default function Navbar() {
           transition: "all 0.4s ease",
           alignItems: "center",
           justifyContent: "space-between",
-          /* ✅ NO display here — globals.css owns it */
         }}
       >
         <Link href="/" style={{ textDecoration: "none", display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
@@ -154,16 +197,19 @@ export default function Navbar() {
         <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
           {navLinks.map(link => (
             <a
-              key={link.href}
+              key={link.label}
               href={link.href}
-              onClick={e => { e.preventDefault(); goTo(link.href, "menu"); }}
+              onClick={e => { e.preventDefault(); link.action(); }}
               style={{
-                color: linkColor, textDecoration: "none", fontSize: 11,
+                color: pathname === link.href ? gold : linkColor,
+                textDecoration: "none", fontSize: 11,
                 letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500,
                 transition: "color 0.3s", cursor: "none",
               }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = gold; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = linkColor; }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.color = pathname === link.href ? gold : linkColor;
+              }}
             >
               {link.label}
             </a>
@@ -207,8 +253,8 @@ export default function Navbar() {
           </Link>
 
           <a
-            href="#order-section"
-            onClick={e => { e.preventDefault(); goTo("#order-section", "cart"); }}
+            href="/menu"
+            onClick={e => { e.preventDefault(); goToPage("/menu", "menu"); }}
             style={{
               background: gold, color: "#000", padding: "10px 22px",
               borderRadius: 999, fontSize: 12, fontWeight: 700,
@@ -231,8 +277,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ══ MOBILE TOP BAR ══
-          NO display property in style — globals.css controls it via .nav-mob-top */}
+      {/* ══ MOBILE TOP BAR ══ */}
       <div
         className="nav-mob-top"
         style={{
@@ -246,7 +291,6 @@ export default function Navbar() {
           transition: "background 0.4s",
           alignItems: "center",
           justifyContent: "space-between",
-          /* ✅ NO display here — globals.css owns it */
         }}
       >
         <Link href="/" style={{ textDecoration: "none", display: "flex", flexDirection: "column", lineHeight: 1 }}>
@@ -289,8 +333,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ══ MOBILE BOTTOM NAV ══
-          NO display property in style — globals.css controls it via .nav-mob-bot */}
+      {/* ══ MOBILE BOTTOM NAV ══ */}
       <nav
         className="nav-mob-bot"
         style={{
@@ -306,7 +349,6 @@ export default function Navbar() {
             ? "0 -8px 40px rgba(0,0,0,0.55)"
             : "0 -4px 20px rgba(0,0,0,0.1)",
           transition: "background 0.4s, border-color 0.4s",
-          /* ✅ NO display here — globals.css owns it */
         }}
       >
         {tabs.map(tab => {
@@ -314,7 +356,7 @@ export default function Navbar() {
           return (
             <button
               key={tab.id}
-              onClick={() => goTo(tab.target, tab.id)}
+              onClick={tab.action}
               style={{
                 flex: 1,
                 display: "flex",
@@ -323,15 +365,16 @@ export default function Navbar() {
                 justifyContent: "center",
                 padding: "10px 4px 12px",
                 position: "relative",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
                 transition: "transform 0.2s",
               }}
             >
-              {/* Active indicator top bar */}
               {active && (
                 <span style={{
                   position: "absolute",
-                  top: 0,
-                  left: "50%",
+                  top: 0, left: "50%",
                   transform: "translateX(-50%)",
                   width: 28, height: 3,
                   borderRadius: "0 0 6px 6px",
@@ -340,16 +383,11 @@ export default function Navbar() {
                 }} />
               )}
 
-              {/* Icon pill */}
               <span style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 42, height: 38,
-                borderRadius: 14,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 42, height: 38, borderRadius: 14,
                 background: active ? "rgba(212,168,67,0.1)" : "transparent",
-                transition: "background 0.25s",
-                position: "relative",
+                transition: "background 0.25s", position: "relative",
               }}>
                 {tab.icon(active)}
                 {tab.id === "cart" && cartCount > 0 && (
@@ -365,13 +403,10 @@ export default function Navbar() {
                 )}
               </span>
 
-              {/* Label */}
               <span style={{
-                fontSize: 10,
-                fontWeight: active ? 700 : 400,
+                fontSize: 10, fontWeight: active ? 700 : 400,
                 color: active ? gold : mobText,
-                letterSpacing: "0.01em",
-                marginTop: 2,
+                letterSpacing: "0.01em", marginTop: 2,
                 transition: "color 0.25s",
               }}>
                 {tab.label}

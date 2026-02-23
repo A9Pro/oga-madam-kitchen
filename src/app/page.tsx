@@ -302,7 +302,7 @@ export default function Home() {
             <span style={{ width:7,height:7,borderRadius:"50%",background:GOLD,
               animation:"blink 2.3s ease-in-out infinite",flexShrink:0 }}/>
             <span style={{ color:GOLD,fontSize:11,letterSpacing:".44em",
-              textTransform:"uppercase",fontWeight:600 }}>Now Open · Minneapolis, MN</span>
+              textTransform:"uppercase",fontWeight:600 }}>Minneapolis, MN</span>
           </div>
 
           {/* H1 */}
