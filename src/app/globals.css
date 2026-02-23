@@ -1,26 +1,206 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gold: #D4A843;
+  --gold2: #F0C060;
+  --dark: #080706;
+  --dark2: #0E0C0A;
+  --dark3: #141210;
+  --red: #C0392B;
+  --cream: #F5EDD8;
+  --border: rgba(212,168,67,0.12);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Outfit', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  color: #fff;
+  font-family: var(--sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+::selection { background: var(--gold); color: #000; }
+
+/* ═══════════════════════════════════════════════════════════════
+   NAV VISIBILITY — ONLY place display is set for these elements.
+   React inline styles must NOT set display on .nav-desktop,
+   .nav-mob-top, or .nav-mob-bot — this file owns that property.
+═══════════════════════════════════════════════════════════════ */
+
+/* Desktop default: show desktop, hide mobile */
+.nav-desktop {
+  display: flex !important;
+}
+.nav-mob-top {
+  display: none !important;
+}
+.nav-mob-bot {
+  display: none !important;
+}
+
+/* Mobile: flip visibility */
+@media (max-width: 768px) {
+  .nav-desktop {
+    display: none !important;
+  }
+  .nav-mob-top {
+    display: flex !important;
+  }
+  .nav-mob-bot {
+    display: flex !important;
+  }
+
+  /* Push page content clear of fixed top + bottom bars */
+  body {
+    padding-top: 64px !important;
+    padding-bottom: 76px !important;
+    cursor: auto !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (min-width: 769px) {
+  body {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* ── CURSOR FIX ──
+     cursor:none on body alone is overridden by browsers on
+     interactive elements (buttons, links, inputs). Applying
+     it to * ensures the spoon cursor shows everywhere.
+  ── */
+  *, *::before, *::after {
+    cursor: none !important;
+  }
 }
+
+/* Remove tap highlight & focus ring on bottom nav buttons */
+.nav-mob-bot button {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-mob-bot button:active {
+  transform: scale(0.9);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .foot-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .foot-grid {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+  footer {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    /* Extra bottom padding so content isn't hidden by mobile nav */
+    padding-bottom: 100px !important;
+  }
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+footer a { transition: color 0.3s; }
+footer a:hover { color: #D4A843 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+@keyframes grain {
+  0%,  100% { transform: translate(0, 0); }
+  10%        { transform: translate(-2%, -3%); }
+  30%        { transform: translate(3%, 2%); }
+  50%        { transform: translate(-1%, 4%); }
+  70%        { transform: translate(2%, -1%); }
+  90%        { transform: translate(-3%, 1%); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.5; }
+  50%       { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+}
+
+@keyframes rpulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scrollLine {
+  0%, 100% { opacity: 0.3; height: 28px; }
+  50%       { opacity: 1;   height: 44px; }
+}
+
+@keyframes scBar {
+  0%, 100% { opacity: 0.3; height: 28px; }
+  50%       { opacity: 1;   height: 44px; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes trailFade {
+  0%   { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.1); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.85s ease, transform 0.85s ease;
+}
+.reveal.vis {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rd1 { transition-delay: 0.06s; }
+.rd2 { transition-delay: 0.14s; }
+.rd3 { transition-delay: 0.22s; }
+.rd4 { transition-delay: 0.30s; }
+.rd5 { transition-delay: 0.38s; }
