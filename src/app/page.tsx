@@ -30,9 +30,9 @@ const REVIEWS = [
 
 const WHY = [
   { icon:"🍳", title:"Made Fresh Daily",    body:"Every dish cooked from scratch — no frozen shortcuts, ever." },
-  { icon:"🌶️", title:"Authentic Spices",   body:"Spice blends imported directly from Nigeria for genuine flavor." },
+  { icon:"🌶️", title:"Authentic Spices",   body:"Spice blends imported directly from African for genuine flavor." },
   { icon:"🚗", title:"Direct Delivery",     body:"Skip DoorDash. We deliver ourselves — fresher, faster, cheaper." },
-  { icon:"❤️", title:"Family Owned",        body:"Every bite made with the same love as a home-cooked Nigerian meal." },
+  { icon:"❤️", title:"Family Owned",        body:"Every bite made with the same love as a home-cooked African meal." },
 ];
 
 /* ─────────────────────────────────────────
@@ -327,7 +327,7 @@ export default function Home() {
           <p style={{ fontSize:"clamp(.96rem,1.75vw,1.15rem)",color:"rgba(255,255,255,.58)",
             fontWeight:300,letterSpacing:".05em",lineHeight:1.9,marginBottom:52,
             animation:"heroUp .8s ease .68s both" }}>
-            Authentic Nigerian Flavors —{" "}
+            Authentic Flavors —{" "}
             <span style={{ color:"#fff",fontWeight:500 }}>Bold. Fresh. Unapologetic.</span>
             <br/>Made with Love in the Heart of Minneapolis.
           </p>
@@ -757,8 +757,8 @@ export default function Home() {
               <em style={{ color:GOLD }}>Served with Love.</em>
             </h2>
             {[
-              "Oga Madam Kitchen was born from a deep love of Nigerian culture — the belief that authentic food has the power to bring people together, no matter where they are.",
-              "Nestled in Minneapolis, Minnesota, we bring the bold flavors of West Africa to the heart of the Midwest. Every dish is prepared with the same care, spices, and soul you'd find in a Nigerian home kitchen.",
+              "Oga Madam Kitchen was born from a deep love of African culture — the belief that authentic food has the power to bring people together, no matter where they are.",
+              "Nestled in Minneapolis, Minnesota, we bring the bold flavors of West Africa to the heart of the Midwest. Every dish is prepared with the same care, spices, and soul you'd find in a African home kitchen.",
               "From our smoky jollof rice to our hearty egusi soup — every bite tells a story of tradition, community, and the warmth of home.",
             ].map((p,i) => (
               <p key={i} style={{ fontSize:15,color:fg2,lineHeight:1.95,marginBottom:18,
@@ -802,7 +802,7 @@ export default function Home() {
             </div>
             <span style={{ position:"absolute",top:-14,right:-14,
               fontSize:11,fontWeight:700,padding:"7px 18px",borderRadius:999,
-              background:GOLD,color:"#000" }}>🇳🇬 Nigerian Owned</span>
+              background:GOLD,color:"#000" }}>🇳🇬 African Owned</span>
             <span style={{ position:"absolute",bottom:-14,left:-14,
               fontSize:11,fontWeight:700,padding:"7px 18px",borderRadius:999,
               background:card,border:`1px solid rgba(212,168,67,.15)`,color:GOLD,
@@ -893,7 +893,7 @@ export default function Home() {
           <p style={{ fontSize:"clamp(14px,1.7vw,17px)",color:"rgba(255,255,255,.46)",
             lineHeight:1.85,marginBottom:52,maxWidth:400,
             marginLeft:"auto",marginRight:"auto" }}>
-            Skip the middlemen. Order directly from our kitchen — authentic Nigerian flavors delivered fresh or ready for pickup.
+            Skip the middlemen. Order directly from our kitchen — authentic African flavors delivered fresh or ready for pickup.
           </p>
           <div className="cta-btns" style={{ display:"flex",alignItems:"center",
             justifyContent:"center",gap:14,flexWrap:"wrap" }}>
