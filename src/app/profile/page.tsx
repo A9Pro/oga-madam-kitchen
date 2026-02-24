@@ -41,13 +41,11 @@ export default function ProfilePage() {
   const router = useRouter();
   useSpoonCursor();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
-  const [editName, setEditName] = useState(false);
   const [userName, setUserName] = useState("Ricch A.");
   const [userEmail] = useState("ricch@example.com");
   const [notifOn, setNotifOn] = useState(true);
   const [emailOn, setEmailOn] = useState(true);
 
-  // Theme tokens
   const bg      = isDark ? "#080706"               : "#FAF7F2";
   const bg2     = isDark ? "#0E0C0A"               : "#F0EAE0";
   const fg      = isDark ? "#FFFFFF"               : "#0D0B09";
@@ -57,7 +55,6 @@ export default function ProfilePage() {
   const cardBdr = isDark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.08)";
   const inputBg = isDark ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)";
 
-  // Loyalty points
   const points = 1240;
   const nextTier = 2000;
   const progress = Math.round((points / nextTier) * 100);
@@ -110,7 +107,6 @@ export default function ProfilePage() {
         }
       `}</style>
 
-      {/* ── HERO ── */}
       <div className="profile-hero" style={{
         background: bg2, borderBottom: `1px solid ${cardBdr}`,
         padding: "110px 56px 36px", transition: "background .5s",
@@ -127,7 +123,6 @@ export default function ProfilePage() {
           Back
         </button>
 
-        {/* Avatar + name */}
         <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div style={{ width: 72, height: 72, borderRadius: "50%",
             background: `linear-gradient(135deg,${GOLD},#8B6914)`,
@@ -153,7 +148,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ── LAYOUT ── */}
       <div className="profile-layout" style={{
         maxWidth: 1200, margin: "0 auto",
         padding: "32px 56px 80px",
@@ -161,7 +155,6 @@ export default function ProfilePage() {
         background: bg, transition: "background .5s", minHeight: "60vh",
       }}>
 
-        {/* ── SIDEBAR TABS ── */}
         <div className="profile-sidebar" style={{
           width: 200, flexShrink: 0,
           position: "sticky", top: 90,
@@ -195,18 +188,13 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* ── CONTENT ── */}
         <div className="profile-content" style={{ flex: 1, minWidth: 0, animation: "fadeUp .4s ease both" }}>
 
-          {/* ════ OVERVIEW ════ */}
           {activeTab === "overview" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
-              {/* Loyalty card */}
               <div style={{ background: `linear-gradient(135deg,#1A1400,#2A1F00)`,
                 border: `1px solid ${GOLD}33`, borderRadius: 22, padding: "26px 28px",
                 position: "relative", overflow: "hidden" }}>
-                {/* Glow */}
                 <div style={{ position: "absolute", top: -40, right: -40,
                   width: 180, height: 180, borderRadius: "50%",
                   background: `radial-gradient(circle,${GOLD}22,transparent 70%)`,
@@ -229,8 +217,6 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Progress bar */}
                 <div className="loyalty-bar-label" style={{ display: "flex",
                   justifyContent: "space-between", marginBottom: 8 }}>
                   <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>Progress to VIP</span>
@@ -242,13 +228,11 @@ export default function ProfilePage() {
                     background: `linear-gradient(90deg,${GOLD},${GOLD2})`,
                     transition: "width 1s ease", boxShadow: `0 0 12px ${GOLD}88` }}/>
                 </div>
-
-                {/* Reward items */}
                 <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
                   {[
-                    { pts: 500,  reward: "Free Puff Puff"       },
-                    { pts: 1000, reward: "10% off any order"    },
-                    { pts: 2000, reward: "Free Jollof Rice"     },
+                    { pts: 500,  reward: "Free Puff Puff"    },
+                    { pts: 1000, reward: "10% off any order" },
+                    { pts: 2000, reward: "Free Jollof Rice"  },
                   ].map(r => (
                     <div key={r.pts} style={{ flex: 1, minWidth: 120,
                       background: points >= r.pts ? `${GOLD}18` : "rgba(255,255,255,.05)",
@@ -267,7 +251,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Badges */}
               <div style={{ background: card, border: `1px solid ${cardBdr}`,
                 borderRadius: 22, padding: "24px 26px" }}>
                 <h3 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
@@ -292,7 +275,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Quick stats */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
                 {[
                   { label: "Total Orders", val: "12",    icon: "📦" },
@@ -313,7 +295,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* ════ ORDERS ════ */}
           {activeTab === "orders" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
@@ -365,7 +346,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* ════ FAVOURITES ════ */}
           {activeTab === "favourites" && (
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
@@ -417,7 +397,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* ════ ADDRESSES ════ */}
           {activeTab === "addresses" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between",
@@ -483,14 +462,12 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* ════ SETTINGS ════ */}
           {activeTab === "settings" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
                 fontSize: 26, fontWeight: 300, color: fg,
                 marginBottom: 8, transition: "color .4s" }}>Settings</h2>
 
-              {/* Profile info */}
               <div style={{ background: card, border: `1px solid ${cardBdr}`,
                 borderRadius: 22, padding: "24px 26px" }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, letterSpacing: ".06em",
@@ -498,9 +475,9 @@ export default function ProfilePage() {
                   transition: "color .4s" }}>Profile Information</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {[
-                    { label: "Display Name", val: userName, editable: true },
-                    { label: "Email",        val: userEmail, editable: false },
-                    { label: "Phone",        val: "+234 800 000 0000", editable: true },
+                    { label: "Display Name", val: userName,              editable: true  },
+                    { label: "Email",        val: userEmail,             editable: false },
+                    { label: "Phone",        val: "+234 800 000 0000",   editable: true  },
                   ].map(field => (
                     <div key={field.label}>
                       <label style={{ fontSize: 11, fontWeight: 600, color: fg2,
@@ -514,7 +491,7 @@ export default function ProfilePage() {
                           background: field.editable ? inputBg : "transparent",
                           color: field.editable ? fg : fg2, fontSize: 14,
                           outline: "none", fontFamily: "'Outfit',sans-serif",
-                          boxSizing: "border-box", transition: "all .3s",
+                          boxSizing: "border-box" as const, transition: "all .3s",
                           opacity: field.editable ? 1 : .6 }}
                         onFocus={e => (e.currentTarget.style.borderColor = `${GOLD}88`)}
                         onBlur={e => (e.currentTarget.style.borderColor = cardBdr)}/>
@@ -530,7 +507,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Notifications */}
               <div style={{ background: card, border: `1px solid ${cardBdr}`,
                 borderRadius: 22, padding: "24px 26px" }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, letterSpacing: ".06em",
@@ -554,14 +530,12 @@ export default function ProfilePage() {
                 ))}
               </div>
 
-              {/* Appearance */}
               <div style={{ background: card, border: `1px solid ${cardBdr}`,
                 borderRadius: 22, padding: "24px 26px" }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, letterSpacing: ".06em",
                   textTransform: "uppercase", color: fg2, marginBottom: 18,
                   transition: "color .4s" }}>Appearance</h3>
-                <div style={{ display: "flex", justifyContent: "space-between",
-                  alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: fg,
                       transition: "color .4s" }}>Dark Mode</p>
@@ -572,7 +546,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Danger zone */}
               <div style={{ background: "rgba(192,57,43,.06)",
                 border: "1px solid rgba(192,57,43,.18)",
                 borderRadius: 22, padding: "24px 26px" }}>
@@ -595,7 +568,6 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </>
