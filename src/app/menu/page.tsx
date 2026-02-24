@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { useSpoonCursor } from "@/hooks/useSpoonCursor";
 
 /* ─────────────────────────────────────────
    MENU DATA
@@ -210,6 +211,7 @@ export default function MenuPage() {
   const { isDark } = useTheme();
   const { addItem, cartCount } = useCart();
   const router = useRouter();
+  useSpoonCursor();
 
   const [active,  setActive]  = useState("All");
   const [search,  setSearch]  = useState("");
@@ -261,6 +263,8 @@ export default function MenuPage() {
       <style>{`
         @keyframes heroUp    { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
         @keyframes cartPop   { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 100%{transform:scale(1)} }
+
+        @media(pointer:fine){ body, a, button, input, [role='button']{ cursor:none !important; } }
 
         .rv     { opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease; }
         .rv.vis { opacity:1;transform:translateY(0); }
