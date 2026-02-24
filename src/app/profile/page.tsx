@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useSpoonCursor } from "@/hooks/useSpoonCursor";
 
@@ -24,9 +25,9 @@ const ORDER_HISTORY = [
 ];
 
 const FAVES = [
-  { name: "Jollof Rice & Chicken", price: "$18.99", img: "/images/jollof.jpg"       },
-  { name: "Goat Meat Pepper Soup", price: "$22.00", img: "/images/pepper-soup.jpg"  },
-  { name: "Suya Meat",             price: "$17.99", img: "/images/suya.jpg"          },
+  { id: 12, name: "Jollof Rice & Chicken", price: "$18.99", priceNum: 18.99, img: "/images/jollof.jpg",       cat: "Mains" },
+  { id: 4,  name: "Goat Meat Pepper Soup", price: "$22.00", priceNum: 22.00, img: "/images/pepper-soup.jpg",  cat: "Soups" },
+  { id: 18, name: "Suya Meat",             price: "$17.99", priceNum: 17.99, img: "/images/suya.jpg",          cat: "Mains" },
 ];
 
 const ADDRESSES = [
@@ -38,6 +39,7 @@ type Tab = "overview" | "orders" | "favourites" | "addresses" | "settings";
 
 export default function ProfilePage() {
   const { isDark, toggleTheme } = useTheme();
+  const { addItem, isInCart, cartCount } = useCart();
   const router = useRouter();
   useSpoonCursor();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
@@ -45,6 +47,12 @@ export default function ProfilePage() {
   const [userEmail] = useState("ricch@example.com");
   const [notifOn, setNotifOn] = useState(true);
   const [emailOn, setEmailOn] = useState(true);
+  const [toast, setToast] = useState({ msg: "", show: false });
+
+  const showToast = (msg: string) => {
+    setToast({ msg, show: true });
+    setTimeout(() => setToast(t => ({ ...t, show: false })), 2200);
+  };
 
   const bg      = isDark ? "#080706"               : "#FAF7F2";
   const bg2     = isDark ? "#0E0C0A"               : "#F0EAE0";
@@ -93,6 +101,7 @@ export default function ProfilePage() {
         .badge-earned:hover { transform: scale(1.08) !important; }
         .logout-btn:hover { background: rgba(192,57,43,.12) !important; color: #e74c3c !important; border-color: rgba(192,57,43,.3) !important; }
         .save-btn:hover { background: ${GOLD2} !important; transform: translateY(-1px) !important; }
+        @keyframes toastIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         @media(max-width:768px){
           .profile-hero { padding: 100px 20px 28px !important; }
           .profile-layout { flex-direction: column !important; padding: 16px 20px 80px !important; }
@@ -106,6 +115,26 @@ export default function ProfilePage() {
           .order-meta { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; }
         }
       `}</style>
+
+      {/* Toast */}
+      {toast.show && (
+        <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)",
+          zIndex: 9999, background: isDark ? "#1A1714" : "#fff",
+          border: `1px solid ${GOLD}44`, borderRadius: 999,
+          padding: "12px 22px", fontSize: 13, fontWeight: 600, color: GOLD,
+          boxShadow: "0 12px 40px rgba(0,0,0,.3)",
+          animation: "toastIn .3s cubic-bezier(.34,1.56,.64,1)",
+          display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap" }}>
+          ✓ {toast.msg}
+          {cartCount > 0 && (
+            <button onClick={() => router.push("/cart")}
+              style={{ background: GOLD, color: "#000", border: "none", borderRadius: 999,
+                padding: "4px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+              View Cart ({cartCount})
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="profile-hero" style={{
         background: bg2, borderBottom: `1px solid ${cardBdr}`,
@@ -338,7 +367,11 @@ export default function ProfilePage() {
                     padding: "7px 18px", borderRadius: 999, cursor: "pointer",
                     fontWeight: 600, transition: "all .25s" }}
                     onMouseEnter={e => { (e.currentTarget.style.background = `${GOLD}18`); }}
-                    onMouseLeave={e => { (e.currentTarget.style.background = "none"); }}>
+                    onMouseLeave={e => { (e.currentTarget.style.background = "none"); }}
+                    onClick={() => {
+                      showToast(`Reordering ${o.id}…`);
+                      router.push("/cart");
+                    }}>
                     Reorder →
                   </button>
                 </div>
@@ -382,12 +415,18 @@ export default function ProfilePage() {
                           {f.price}
                         </span>
                         <button style={{ padding: "7px 16px", borderRadius: 999,
-                          background: GOLD, color: "#000", border: "none",
+                          background: isInCart(f.id) ? "rgba(212,168,67,.15)" : GOLD,
+                          color: isInCart(f.id) ? GOLD : "#000",
+                          border: isInCart(f.id) ? `1px solid ${GOLD}` : "none",
                           fontSize: 11, fontWeight: 700, cursor: "pointer",
                           transition: "all .25s" }}
-                          onMouseEnter={e => (e.currentTarget.style.background = GOLD2)}
-                          onMouseLeave={e => (e.currentTarget.style.background = GOLD)}>
-                          Add to Cart
+                          onMouseEnter={e => (e.currentTarget.style.background = isInCart(f.id) ? GOLD : GOLD2)}
+                          onMouseLeave={e => (e.currentTarget.style.background = isInCart(f.id) ? "rgba(212,168,67,.15)" : GOLD)}
+                          onClick={() => {
+                            addItem({ id: f.id, name: f.name, price: f.priceNum, img: f.img, cat: f.cat });
+                            showToast(`${f.name} added to cart`);
+                          }}>
+                          {isInCart(f.id) ? "✓ In Cart" : "Add to Cart"}
                         </button>
                       </div>
                     </div>
