@@ -14,43 +14,43 @@ const MENU: Array<{
   tagBg: string; tagC: string; tagBdr: string;
   desc: string; img: string; popular?: boolean;
 }> = [
-  { id:1,  name:"Meat Pie",               price:"$4.00",  priceNum:4.00,  cat:"Appetizers", tag:"Snack",          tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Classic West African-style meat pie, golden-baked and stuffed with seasoned minced meat.",                                         img:"/images/suya.jpg" },
-  { id:2,  name:"Puff Puff",              price:"$0.90",  priceNum:0.90,  cat:"Appetizers", tag:"Street Food",    tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Fluffy deep-fried Nigerian dough balls — lightly sweet and utterly addictive.",                                                    img:"/images/jollof.jpg" },
-  { id:3,  name:"Donuts",                 price:"$1.50",  priceNum:1.50,  cat:"Appetizers", tag:"Baked",          tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Soft, freshly made donuts. A simple crowd-pleaser.",                                                                               img:"/images/jollof.jpg" },
+  { id:1,  name:"Meat Pie",               price:"$4.00",  priceNum:4.00,  cat:"Appetizers", tag:"Snack",          tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Classic West African-style meat pie, golden-baked and stuffed with seasoned minced meat.",                                         img:"/images/meat-pie.jpg" },
+  { id:2,  name:"Puff Puff",              price:"$0.90",  priceNum:0.90,  cat:"Appetizers", tag:"Street Food",    tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Fluffy deep-fried Nigerian dough balls — lightly sweet and utterly addictive.",                                                    img:"/images/puff-puff.jpg" },
+  { id:3,  name:"Donuts",                 price:"$1.50",  priceNum:1.50,  cat:"Appetizers", tag:"Baked",          tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Soft, freshly made donuts. A simple crowd-pleaser.",                                                                               img:"/images/donut.jpg" },
   { id:4,  name:"Goat Meat Pepper Soup",  price:"$22.00", priceNum:22.00, cat:"Soups",      tag:"Spicy 🔥",        tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Rich native pepper soup with tender goat meat & aromatic spices.",                                                                 img:"/images/pepper-soup.jpg", popular:true, note:"Add instructions if you want it with rice or fufu" },
-  { id:5,  name:"Catfish Pepper Soup",    price:"$20.99", priceNum:20.99, cat:"Soups",      tag:"Fan Favourite",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Catfish slow-simmered in a fiery, aromatic pepper broth.",                                                                         img:"/images/pepper-soup.jpg", note:"Add instruction if you want it with fufu or rice" },
-  { id:6,  name:"Tilapia Pepper Soup",    price:"$18.99", priceNum:18.99, cat:"Soups",      tag:"Light & Fresh",  tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Tilapia pepper soup seasoned with native spices for a bold, clean finish.",                                                        img:"/images/pepper-soup.jpg" },
-  { id:7,  name:"Ogbono Soup",            price:"$24.99", priceNum:24.99, cat:"Soups",      tag:"Traditional",    tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Draw soup made from wild mango seeds — thick, hearty and deeply satisfying.",                                                      img:"/images/egusi.jpg", popular:true },
+  { id:5,  name:"Catfish Pepper Soup",    price:"$20.99", priceNum:20.99, cat:"Soups",      tag:"Fan Favourite",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Catfish slow-simmered in a fiery, aromatic pepper broth.",                                                                         img:"/images/cat-fish.jpg", note:"Add instruction if you want it with fufu or rice" },
+  { id:6,  name:"Tilapia Pepper Soup",    price:"$18.99", priceNum:18.99, cat:"Soups",      tag:"Light & Fresh",  tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Tilapia pepper soup seasoned with native spices for a bold, clean finish.",                                                        img:"/images/tilapia-fish.jpg" },
+  { id:7,  name:"Ogbono Soup",            price:"$24.99", priceNum:24.99, cat:"Soups",      tag:"Traditional",    tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Draw soup made from wild mango seeds — thick, hearty and deeply satisfying.",                                                      img:"/images/ogbono-soup.jpg", popular:true },
   { id:8,  name:"Egusi Soup",             price:"$20.99", priceNum:20.99, cat:"Soups",      tag:"Chef's Special", tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Rich melon seed soup slow-cooked with assorted meat, leafy greens & palm oil.",                                                    img:"/images/egusi.jpg", popular:true },
-  { id:9,  name:"Okra & Fufu",            price:"$19.99", priceNum:19.99, cat:"Soups",      tag:"Classic",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Slippery and satisfying okra soup served with smooth, freshly made fufu.",                                                         img:"/images/egusi.jpg" },
-  { id:10, name:"Eforiro (Vegetable)",    price:"$23.99", priceNum:23.99, cat:"Soups",      tag:"Healthy",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Nigerian vegetable soup with assorted meat. Served with pounded yam or fufu.",                                                     img:"/images/egusi.jpg" },
-  { id:11, name:"Palm Butter Soup",       price:"$21.99", priceNum:21.99, cat:"Soups",      tag:"West African",   tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Silky palm butter soup with tender meat — a West African favourite.",                                                              img:"/images/pepper-soup.jpg" },
+  { id:9,  name:"Okra & Fufu",            price:"$19.99", priceNum:19.99, cat:"Soups",      tag:"Classic",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Slippery and satisfying okra soup served with smooth, freshly made fufu.",                                                         img:"/images/okrafufu.jpg" },
+  { id:10, name:"Eforiro (Vegetable)",    price:"$23.99", priceNum:23.99, cat:"Soups",      tag:"Healthy",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Nigerian vegetable soup with assorted meat. Served with pounded yam or fufu.",                                                     img:"/images/efo-riro.jpg" },
+  { id:11, name:"Palm Butter Soup",       price:"$21.99", priceNum:21.99, cat:"Soups",      tag:"West African",   tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Silky palm butter soup with tender meat — a West African favourite.",                                                              img:"/images/palm-buttersoup.jpg" },
   { id:12, name:"Jollof Rice & Chicken",  price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"Fan Favourite",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Smoky party-style jollof rice paired with perfectly seasoned chicken.",                                                            img:"/images/jollof.jpg", popular:true },
-  { id:13, name:"Fried Rice & Chicken",   price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"Classic",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Nigerian fried rice loaded with vegetables and protein, served with seasoned chicken.",                                            img:"/images/jollof.jpg" },
-  { id:14, name:"Jollof Rice w/ Goat",    price:"$23.00", priceNum:23.00, cat:"Mains",      tag:"Bestseller",     tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Smoky jollof rice with slow-cooked, well-seasoned goat meat.",                                                                    img:"/images/jollof.jpg" },
-  { id:15, name:"Fried Rice w/ Goat",     price:"$23.00", priceNum:23.00, cat:"Mains",      tag:"Rich & Hearty",  tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Nigerian fried rice with tender, peppered goat meat.",                                                                            img:"/images/jollof.jpg" },
-  { id:16, name:"Dry Rice & Fried Tilapia",price:"$24.99",priceNum:24.99, cat:"Mains",      tag:"Seafood",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"White rice served alongside perfectly fried whole tilapia fish.",                                                                  img:"/images/suya.jpg" },
-  { id:17, name:"Baked Fish & Plantain",  price:"$19.99", priceNum:19.99, cat:"Mains",      tag:"Healthy",        tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Beautifully baked fish served with sweet plantain and roasted vegetables.",                                                        img:"/images/suya.jpg", note:"With plantain and roasted vegetables" },
+  { id:13, name:"Fried Rice & Chicken",   price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"Classic",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Nigerian fried rice loaded with vegetables and protein, served with seasoned chicken.",                                            img:"/images/fried-rice.jpg" },
+  { id:14, name:"Jollof Rice w/ Goat",    price:"$23.00", priceNum:23.00, cat:"Mains",      tag:"Bestseller",     tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Smoky jollof rice with slow-cooked, well-seasoned goat meat.",                                                                    img:"/images/jollof-rice-goat.jpg" },
+  { id:15, name:"Fried Rice w/ Goat",     price:"$23.00", priceNum:23.00, cat:"Mains",      tag:"Rich & Hearty",  tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Nigerian fried rice with tender, peppered goat meat.",                                                                            img:"/images/friedriceg.jpg" },
+  { id:16, name:"Dry Rice & Fried Tilapia",price:"$24.99",priceNum:24.99, cat:"Mains",      tag:"Seafood",        tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"White rice served alongside perfectly fried whole tilapia fish.",                                                                  img:"/images/atieke.jpg" },
+  { id:17, name:"Baked Fish & Plantain",  price:"$19.99", priceNum:19.99, cat:"Mains",      tag:"Healthy",        tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Beautifully baked fish served with sweet plantain and roasted vegetables.",                                                        img:"/images/bakedfish.jpg", note:"With plantain and roasted vegetables" },
   { id:18, name:"Suya Meat",              price:"$17.99", priceNum:17.99, cat:"Mains",      tag:"Grilled",        tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Spiced grilled beef with the iconic yaji spice rub — smoky, bold and irresistible.",                                              img:"/images/suya.jpg", popular:true },
-  { id:19, name:"Amala Ewedu & Gbegiri",  price:"$28.00", priceNum:28.00, cat:"Mains",      tag:"Yoruba Classic", tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Soft yam-flour swallow with jute leaf soup and bean soup. Served with assorted meat.",                                            img:"/images/pounded-yam.jpg", note:"With assorted meat" },
-  { id:20, name:"Potato Greens & Rice",   price:"$20.99", priceNum:20.99, cat:"Mains",      tag:"Sierra Leone",   tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"West African potato leaf stew cooked with palm oil and assorted protein, served with rice.",                                      img:"/images/egusi.jpg" },
-  { id:21, name:"Atieke w/ Tilapia",      price:"$24.99", priceNum:24.99, cat:"Mains",      tag:"Ivorian",        tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Fermented cassava couscous from Côte d'Ivoire, served with baked or fried tilapia.",                                              img:"/images/suya.jpg" },
-  { id:22, name:"Palace Sauce & Rice",    price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"House Special",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Our signature palace sauce paired with fluffy white rice.",                                                                        img:"/images/jollof.jpg" },
-  { id:23, name:"Kidney Beans & Rice",    price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"Protein-Rich",   tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Stewed kidney beans with beef, chicken or smoked turkey, served with rice.",                                                      img:"/images/egusi.jpg", note:"Comes with rice" },
-  { id:24, name:"Cassava Leaves & Rice",  price:"$19.99", priceNum:19.99, cat:"Mains",      tag:"West African",   tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Slow-cooked cassava leaf stew — a beloved West African comfort dish served with rice.",                                           img:"/images/egusi.jpg" },
-  { id:25, name:"Fried Chicken & Fries",  price:"$14.99", priceNum:14.99, cat:"Mains",      tag:"4 Piece",        tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"4-piece crispy fried chicken with golden french fries.",                                                                           img:"/images/suya.jpg" },
-  { id:26, name:"Fufu & Soup",            price:"$20.99", priceNum:20.99, cat:"Mains",      tag:"Classic Combo",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Smooth, stretchy fufu paired with your choice of Nigerian soup.",                                                                  img:"/images/pounded-yam.jpg" },
+  { id:19, name:"Amala Ewedu & Gbegiri",  price:"$28.00", priceNum:28.00, cat:"Mains",      tag:"Yoruba Classic", tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Soft yam-flour swallow with jute leaf soup and bean soup. Served with assorted meat.",                                            img:"/images/amala-ewedu.jpg", note:"With assorted meat" },
+  { id:20, name:"Potato Greens & Rice",   price:"$20.99", priceNum:20.99, cat:"Mains",      tag:"Sierra Leone",   tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"West African potato leaf stew cooked with palm oil and assorted protein, served with rice.",                                      img:"/images/potato.jpg" },
+  { id:21, name:"Atieke w/ Tilapia",      price:"$24.99", priceNum:24.99, cat:"Mains",      tag:"Ivorian",        tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Fermented cassava couscous from Côte d'Ivoire, served with baked or fried tilapia.",                                              img:"/images/attieke.jpg" },
+  { id:22, name:"Palace Sauce & Rice",    price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"House Special",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Our signature palace sauce paired with fluffy white rice.",                                                                        img:"/images/palace.jpg" },
+  { id:23, name:"Kidney Beans & Rice",    price:"$18.99", priceNum:18.99, cat:"Mains",      tag:"Protein-Rich",   tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Stewed kidney beans with beef, chicken or smoked turkey, served with rice.",                                                      img:"/images/kidneyb.jpg", note:"Comes with rice" },
+  { id:24, name:"Cassava Leaves & Rice",  price:"$19.99", priceNum:19.99, cat:"Mains",      tag:"West African",   tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Slow-cooked cassava leaf stew — a beloved West African comfort dish served with rice.",                                           img:"/images/cassavaleave.jpg" },
+  { id:25, name:"Fried Chicken & Fries",  price:"$14.99", priceNum:14.99, cat:"Mains",      tag:"4 Piece",        tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"4-piece crispy fried chicken with golden french fries.",                                                                           img:"/images/friedchicken-frenchfries.jpg" },
+  { id:26, name:"Fufu & Soup",            price:"$20.99", priceNum:20.99, cat:"Mains",      tag:"Classic Combo",  tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Smooth, stretchy fufu paired with your choice of Nigerian soup.",                                                                  img:"/images/fufuandsoup.jpg" },
   { id:27, name:"Tourbogee",              price:"$20.99", priceNum:20.99, cat:"Mains",      tag:"Special",        tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"A rich and flavourful house specialty. Ask your server for today's preparation.",                                                  img:"/images/egusi.jpg" },
-  { id:28, name:"Attieke w/ Cassava Fish",price:"$26.00", priceNum:26.00, cat:"Mains",      tag:"Premium",        tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Fermented cassava couscous served with dried cassava fish for a bold, authentic West African taste.",                             img:"/images/suya.jpg" },
-  { id:29, name:"Dry Rice w/ Cassava Fish",price:"$25.50",priceNum:25.50, cat:"Mains",      tag:"Unique",         tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Perfectly cooked dry rice alongside smoky, seasoned cassava fish.",                                                               img:"/images/jollof.jpg" },
-  { id:30, name:"Pepper Roasted Turkey",  price:"$10.99", priceNum:10.99, cat:"Mains",      tag:"Wings",          tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Juicy turkey wings slow-roasted in a blend of native peppers and spices.",                                                         img:"/images/suya.jpg" },
-  { id:31, name:"Moi Moi",               price:"$5.50",  priceNum:5.50,  cat:"Sides",      tag:"Nigerian Classic",tagBg:"rgba(39,174,96,.12)", tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Steamed bean pudding blended with mackerel fish, egg and spices.",                                                                img:"/images/egusi.jpg", note:"Grinding beans mixed with mackerel fish and egg" },
-  { id:32, name:"Jollof Rice Only",       price:"$10.00", priceNum:10.00, cat:"Sides",      tag:"Side",           tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"A generous portion of our signature smoky jollof rice on its own.",                                                               img:"/images/jollof.jpg" },
-  { id:33, name:"Fried Rice Only",        price:"$10.00", priceNum:10.00, cat:"Sides",      tag:"Side",           tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"A portion of our savory Nigerian fried rice on its own.",                                                                          img:"/images/jollof.jpg" },
-  { id:34, name:"White Rice Only",        price:"$6.99",  priceNum:6.99,  cat:"Sides",      tag:"Plain",          tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Plain steamed white rice. Perfect to pair with any soup or stew.",                                                                img:"/images/jollof.jpg" },
-  { id:35, name:"Fufu Only",              price:"$5.99",  priceNum:5.99,  cat:"Sides",      tag:"Swallow",        tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Smooth, freshly made fufu. Pair with any of our soups.",                                                                          img:"/images/pounded-yam.jpg" },
-  { id:36, name:"Pounded Yam Only",       price:"$5.99",  priceNum:5.99,  cat:"Sides",      tag:"Swallow",        tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Silky smooth pounded yam. Perfect with any Nigerian soup.",                                                                       img:"/images/pounded-yam.jpg" },
-  { id:37, name:"Fried Goat Meat (each)", price:"$3.50",  priceNum:3.50,  cat:"Sides",      tag:"Add-On",         tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"One piece of fried goat meat — crispy, spiced and incredibly satisfying.",                                                         img:"/images/suya.jpg" },
+  { id:28, name:"Attieke w/ Cassava Fish",price:"$26.00", priceNum:26.00, cat:"Mains",      tag:"Premium",        tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"Fermented cassava couscous served with dried cassava fish for a bold, authentic West African taste.",                             img:"/images/attieke-withcassavafish.jpg" },
+  { id:29, name:"Dry Rice w/ Cassava Fish",price:"$25.50",priceNum:25.50, cat:"Mains",      tag:"Unique",         tagBg:"rgba(230,126,34,.15)", tagC:"#e67e22", tagBdr:"rgba(230,126,34,.4)",  desc:"Perfectly cooked dry rice alongside smoky, seasoned cassava fish.",                                                               img:"/images/atieke.jpg" },
+  { id:30, name:"Pepper Roasted Turkey",  price:"$10.99", priceNum:10.99, cat:"Mains",      tag:"Wings",          tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"Juicy turkey wings slow-roasted in a blend of native peppers and spices.",                                                         img:"/images/peppereddd-roat.jpg" },
+  { id:31, name:"Moi Moi",               price:"$5.50",  priceNum:5.50,  cat:"Sides",      tag:"Nigerian Classic",tagBg:"rgba(39,174,96,.12)", tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Steamed bean pudding blended with mackerel fish, egg and spices.",                                                                img:"/images/moi-moi.jpg", note:"Grinding beans mixed with mackerel fish and egg" },
+  { id:32, name:"Jollof Rice Only",       price:"$10.00", priceNum:10.00, cat:"Sides",      tag:"Side",           tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"A generous portion of our signature smoky jollof rice on its own.",                                                               img:"/images/jollofrice.jpg" },
+  { id:33, name:"Fried Rice Only",        price:"$10.00", priceNum:10.00, cat:"Sides",      tag:"Side",           tagBg:"rgba(212,168,67,.15)", tagC:"#D4A843", tagBdr:"rgba(212,168,67,.4)",  desc:"A portion of our savory Nigerian fried rice on its own.",                                                                          img:"/images/friedrice.jpg" },
+  { id:34, name:"White Rice Only",        price:"$6.99",  priceNum:6.99,  cat:"Sides",      tag:"Plain",          tagBg:"rgba(39,174,96,.12)",  tagC:"#27ae60", tagBdr:"rgba(39,174,96,.35)",  desc:"Plain steamed white rice. Perfect to pair with any soup or stew.",                                                                img:"/images/whiterice.jpg" },
+  { id:35, name:"Fufu Only",              price:"$5.99",  priceNum:5.99,  cat:"Sides",      tag:"Swallow",        tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Smooth, freshly made fufu. Pair with any of our soups.",                                                                          img:"/images/fufu.jpg" },
+  { id:36, name:"Pounded Yam Only",       price:"$5.99",  priceNum:5.99,  cat:"Sides",      tag:"Swallow",        tagBg:"rgba(155,89,182,.12)", tagC:"#9b59b6", tagBdr:"rgba(155,89,182,.3)",  desc:"Silky smooth pounded yam. Perfect with any Nigerian soup.",                                                                       img:"/images/poounnded.jpg" },
+  { id:37, name:"Fried Goat Meat (each)", price:"$3.50",  priceNum:3.50,  cat:"Sides",      tag:"Add-On",         tagBg:"rgba(192,57,43,.15)",  tagC:"#e74c3c", tagBdr:"rgba(192,57,43,.4)",   desc:"One piece of fried goat meat — crispy, spiced and incredibly satisfying.",                                                         img:"/images/fried-goat-meat.jpg" },
 ];
 
 const CATS_FILTER = ["All", "Appetizers", "Soups", "Mains", "Sides"];
@@ -103,7 +103,6 @@ function DishCard({
             fontSize:8.5, fontWeight:800, letterSpacing:".1em", textTransform:"uppercase",
             padding:"3px 9px", borderRadius:999 }}>🔥 Popular</span>
         )}
-        {/* In-cart qty badge */}
         {inCart && (
           <span style={{ position:"absolute", bottom:9, left:9,
             background:GOLD, color:"#000",
@@ -129,7 +128,6 @@ function DishCard({
         {/* ── Cart Controls ── */}
         {inCart ? (
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-            {/* Stepper */}
             <div style={{ display:"flex", alignItems:"center",
               border:`1px solid rgba(212,168,67,.3)`, borderRadius:10,
               overflow:"hidden", flexShrink:0 }}>
@@ -154,7 +152,6 @@ function DishCard({
                 +
               </button>
             </div>
-            {/* View Cart pill */}
             <a href="/cart"
               style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center",
                 padding:"8px", borderRadius:10,
@@ -263,7 +260,6 @@ export default function MenuPage() {
     <>
       <style>{`
         @keyframes heroUp    { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes trailFade { 0%{opacity:.7;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(0)} }
         @keyframes cartPop   { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 100%{transform:scale(1)} }
 
         .rv     { opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease; }
@@ -292,10 +288,9 @@ export default function MenuPage() {
         }
       `}</style>
 
-      {/* ── TOAST ── */}
       <Toast msg={toast.msg} visible={toast.show} />
 
-      {/* ── FLOATING CART FAB (shows when items in cart) ── */}
+      {/* ── FLOATING CART FAB ── */}
       {cartCount > 0 && (
         <button className="cart-fab"
           onClick={() => router.push("/cart")}
@@ -360,7 +355,6 @@ export default function MenuPage() {
           padding:"13px 56px", display:"flex", alignItems:"center", gap:14,
           overflowX:"auto", scrollbarWidth:"none" as const }}>
 
-          {/* Category pills */}
           <div style={{ display:"flex", gap:8,
             overflowX:"auto", scrollbarWidth:"none" as const, flexShrink:0 }}>
             {CATS_FILTER.map(cat => (
@@ -378,7 +372,6 @@ export default function MenuPage() {
             ))}
           </div>
 
-          {/* Cart count in filter bar */}
           {cartCount > 0 && (
             <button onClick={() => router.push("/cart")}
               style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8,
@@ -397,7 +390,6 @@ export default function MenuPage() {
             </button>
           )}
 
-          {/* Search */}
           <div className="srch-w" style={{ marginLeft: cartCount > 0 ? 0 : "auto",
             position:"relative", flexShrink:0 }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -498,7 +490,7 @@ export default function MenuPage() {
             Go to Cart ({cartCount})
           </button>
         ) : (
-          <a href="/menu" className="btn-g"
+          <a href="/order" className="btn-g"
             style={{ display:"inline-flex", alignItems:"center", gap:10,
               background:GOLD, color:"#000", padding:"14px 38px",
               borderRadius:999, fontSize:13, fontWeight:700,
@@ -508,7 +500,7 @@ export default function MenuPage() {
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            Start Adding Items
+            Start Your Order
           </a>
         )}
       </div>

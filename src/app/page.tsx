@@ -477,7 +477,7 @@ export default function Home() {
             <span style={sLabel}>Signature Dish</span>
             <h2 style={{ ...sH2,fontSize:"clamp(2.6rem,4.8vw,4.8rem)",marginBottom:18 }}>Our Famous<br/>Jollof Rice</h2>
             <div style={{ fontFamily:"'Cormorant Garamond',Georgia,serif",fontSize:"2.2rem",fontWeight:600,color:GOLD,marginBottom:22 }}>$18.99</div>
-            <p style={{ fontSize:15,color:fg2,lineHeight:1.95,marginBottom:36,maxWidth:360,transition:"color .4s" }}>Slow-cooked, party-style jollof rice with a smoky, scorched base perfected over generations. The dish Minneapolis can't stop talking about — made from scratch every single day.</p>
+            <p style={{ fontSize:15,color:fg2,lineHeight:1.95,marginBottom:36,maxWidth:360,transition:"color .4s" }}>Slow-cooked, party-style jollof rice with a smoky, scorched base perfected over generations. The dish Minneapolis can&apos;t stop talking about — made from scratch every single day.</p>
             {isInCart(12) ? (
               <button onClick={() => router.push("/cart")} className="btn-g"
                 style={{ alignSelf:"flex-start",display:"inline-flex",alignItems:"center",gap:10,background:GOLD,color:"#000",padding:"15px 36px",borderRadius:999,fontSize:13,fontWeight:700,letterSpacing:".09em",textTransform:"uppercase",border:"none",transition:"all .32s cubic-bezier(.23,1,.32,1)",cursor:"none" }}>
