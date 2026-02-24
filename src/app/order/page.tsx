@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 /* ═══════════════════════════════════════════════════
    REAL MENU ITEMS — from ogamadam.com/menu.php
@@ -52,7 +54,7 @@ const ORDER_ITEMS = [
 type CartItem = { id:number; name:string; price:number; qty:number; img:string; cat:string; };
 
 /* ═══════════════════════════════════════════════════
-   SPOON CURSOR HOOK — same as menu page
+   SPOON CURSOR HOOK
 ═══════════════════════════════════════════════════ */
 function useSpoonCursor() {
   const raf = useRef<number | undefined>(undefined);
@@ -124,7 +126,8 @@ function useSpoonCursor() {
 ═══════════════════════════════════════════════════ */
 export default function OrderPage() {
   const { isDark } = useTheme();
-  useSpoonCursor(); // ← cursor works here now
+  const { user } = useAuth();
+  useSpoonCursor();
 
   const [mode,  setMode]  = useState<"pickup"|"delivery">("pickup");
   const [cart,  setCart]  = useState<CartItem[]>([]);
@@ -132,6 +135,7 @@ export default function OrderPage() {
   const [toast, setToast] = useState<{msg:string;type:"ok"|"err"}|null>(null);
   const [catTab, setCatTab] = useState("All");
   const [form,  setForm]  = useState({ name:"",phone:"",email:"",address:"",notes:"",time:"asap" });
+  const [submitting, setSubmitting] = useState(false);
 
   const bg      = isDark ? "#080706"               : "#FAF7F2";
   const bg2     = isDark ? "#0E0C0A"               : "#F0EAE0";
@@ -182,12 +186,75 @@ export default function OrderPage() {
   const catTabs = ["All","Mains","Soups","Sides","Appetizers"];
   const visItems = catTab === "All" ? ORDER_ITEMS : ORDER_ITEMS.filter(i => i.cat === catTab);
 
-  const handleSubmit = () => {
+  // ── SUPABASE SUBMIT ────────────────────────────────────────────────────────
+  const handleSubmit = async () => {
     if (!form.name.trim() || !form.phone.trim()) { showToast("Name and phone are required","err"); return; }
     if (mode==="delivery" && !form.address.trim()) { showToast("Delivery address is required","err"); return; }
     if (cart.length === 0) { showToast("Add at least one item","err"); return; }
-    setStep(3);
+
+    setSubmitting(true);
+
+    try {
+      // 1. Build the order row
+      const orderPayload: Record<string, unknown> = {
+        total:        parseFloat(total.toFixed(2)),
+        subtotal:     parseFloat(subtotal.toFixed(2)),
+        delivery_fee: delivFee,
+        tax:          0,
+        discount:     0,
+        type:         mode,
+        status:       "Pending",
+        // Guest contact info stored in notes field until a contacts column exists
+        notes: JSON.stringify({
+          name:    form.name.trim(),
+          phone:   form.phone.trim(),
+          email:   form.email.trim() || null,
+          address: form.address.trim() || null,
+          time:    form.time,
+          special: form.notes.trim() || null,
+        }),
+      };
+
+      // Attach user_id when logged in
+      if (user?.id) {
+        orderPayload.user_id = user.id;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert(orderPayload)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // 2. Insert order items
+      const orderItems = cart.map(c => ({
+        order_id:   order.id,
+        dish_id:    c.id,
+        dish_name:  c.name,
+        quantity:   c.qty,
+        unit_price: c.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // 3. All good — show confirmation screen
+      setStep(3);
+
+    } catch (err: unknown) {
+      console.error("Order submit error:", err);
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      showToast(message, "err");
+    } finally {
+      setSubmitting(false);
+    }
   };
+  // ──────────────────────────────────────────────────────────────────────────
 
   const inputStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
     width:"100%", padding:"12px 16px",
@@ -204,6 +271,7 @@ export default function OrderPage() {
         @keyframes heroUp   { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes toastIn  { from{opacity:0;transform:translateY(-18px) scale(.94)} to{opacity:1;transform:translateY(0) scale(1)} }
         @keyframes trailFade{ 0%{opacity:.7;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(0)} }
+        @keyframes spin     { to { transform: rotate(360deg); } }
 
         .rv     { opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease; }
         .rv.vis { opacity:1;transform:translateY(0); }
@@ -411,7 +479,7 @@ export default function OrderPage() {
                   <>
                     {/* Category tabs */}
                     <div style={{ display:"flex",gap:8,marginBottom:22,overflowX:"auto",
-                      scrollbarWidth:"none",WebkitOverflowScrolling:"touch" }}>
+                      scrollbarWidth:"none" as const,WebkitOverflowScrolling:"touch" }}>
                       {catTabs.map(c => (
                         <button key={c}
                           className={catTab===c ? "" : "tab-pill"}
@@ -586,15 +654,28 @@ export default function OrderPage() {
                       </button>
                       <button className="btn-g"
                         onClick={handleSubmit}
+                        disabled={submitting}
                         style={{ display:"inline-flex",alignItems:"center",gap:10,
                           padding:"14px 36px",borderRadius:999,fontSize:13,fontWeight:700,
                           letterSpacing:".08em",textTransform:"uppercase",
-                          background:GOLD,color:"#000",border:"none",cursor:"pointer",
+                          background:submitting ? "rgba(212,168,67,.5)" : GOLD,
+                          color:"#000",border:"none",cursor:submitting?"not-allowed":"pointer",
                           transition:"all .32s cubic-bezier(.23,1,.32,1)" }}>
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Confirm Order · ${total.toFixed(2)}
+                        {submitting ? (
+                          <>
+                            <span style={{ width:14,height:14,borderRadius:"50%",
+                              border:"2px solid rgba(0,0,0,.2)",borderTop:"2px solid #000",
+                              animation:"spin .8s linear infinite",display:"inline-block" }}/>
+                            Placing Order…
+                          </>
+                        ) : (
+                          <>
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Confirm Order · ${total.toFixed(2)}
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

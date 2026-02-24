@@ -5,6 +5,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { useCart } from "@/context/CartContext";
 import { useSpoonCursor } from "@/hooks/useSpoonCursor";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const GOLD  = "#D4A843";
 const GOLD2 = "#F0C060";
@@ -28,6 +30,7 @@ const UPSELLS = [
 export default function CartPage() {
   const { isDark } = useTheme();
   const { items, cartCount, subtotal, updateQty, removeItem, clearCart, addItem, isInCart } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   useSpoonCursor();
 
@@ -37,6 +40,8 @@ export default function CartPage() {
   const [removingIds,  setRemovingIds]  = useState<Set<number>>(new Set());
   const [addedIds,     setAddedIds]     = useState<Set<number>>(new Set());
   const [step,         setStep]         = useState<"cart" | "processing" | "done">("cart");
+  const [checkoutError, setCheckoutError] = useState("");
+  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const bg      = isDark ? "#080706"               : "#FAF7F2";
@@ -78,10 +83,64 @@ export default function CartPage() {
     else { setPromoError("Invalid code. Try OGA10"); setPromoApplied(null); }
   };
 
-  const handleCheckout = () => {
+  // ── SUPABASE CHECKOUT ──────────────────────────────────────────────────────
+  const handleCheckout = async () => {
+    setCheckoutError("");
     setStep("processing");
-    setTimeout(() => setStep("done"), 2200);
+
+    try {
+      // 1. Insert the order row
+      const orderPayload: Record<string, unknown> = {
+        total:    parseFloat(total.toFixed(2)),
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        delivery_fee: parseFloat(delivery.toFixed(2)),
+        tax:      parseFloat(tax.toFixed(2)),
+        discount: parseFloat(discount.toFixed(2)),
+        promo_code: promoApplied ?? null,
+        type:     "delivery",
+        status:   "Pending",
+      };
+
+      // Attach user_id only when logged in
+      if (user?.id) {
+        orderPayload.user_id = user.id;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert(orderPayload)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // 2. Insert each cart item as an order_item row
+      const orderItems = items.map(item => ({
+        order_id:   order.id,
+        dish_id:    item.id,
+        dish_name:  item.name,
+        quantity:   item.qty,
+        unit_price: item.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // 3. Success — store order id for receipt, clear cart, show done screen
+      setPlacedOrderId(order.id);
+      setStep("done");
+
+    } catch (err: unknown) {
+      console.error("Checkout error:", err);
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setCheckoutError(message);
+      setStep("cart");
+    }
   };
+  // ──────────────────────────────────────────────────────────────────────────
 
   const visibleUpsells = UPSELLS.filter(u => !isInCart(u.id)).slice(0, 3);
 
@@ -154,6 +213,19 @@ export default function CartPage() {
             <p style={{ color:fg3, fontSize:13, marginBottom:30 }}>
               Estimated time: <strong style={{ color:GOLD }}>30–45 minutes</strong>
             </p>
+
+            {/* Order ID badge — links to profile orders tab */}
+            {placedOrderId && (
+              <div style={{ marginBottom:18 }}>
+                <button
+                  onClick={() => router.push("/profile?tab=orders")}
+                  style={{ fontSize:12, color:GOLD, background:"rgba(212,168,67,.08)",
+                    border:"1px solid rgba(212,168,67,.25)", borderRadius:999,
+                    padding:"7px 18px", cursor:"pointer", transition:"all .25s" }}>
+                  View in Order History →
+                </button>
+              </div>
+            )}
 
             <div style={{ background:card, border:`1px solid ${cardBdr}`,
               borderRadius:20, padding:"18px 22px", marginBottom:24, textAlign:"left" }}>
@@ -601,6 +673,15 @@ export default function CartPage() {
                     </p>
                   )}
                 </div>
+
+                {/* Checkout error */}
+                {checkoutError && (
+                  <div style={{ marginBottom:14, padding:"10px 14px", borderRadius:12,
+                    background:"rgba(192,57,43,.08)", border:"1px solid rgba(192,57,43,.25)",
+                    fontSize:12, color:RED, lineHeight:1.5 }}>
+                    ⚠ {checkoutError}
+                  </div>
+                )}
 
                 {/* Checkout */}
                 <button className="cta" onClick={handleCheckout}
