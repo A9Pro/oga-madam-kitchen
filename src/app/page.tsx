@@ -139,6 +139,20 @@ export default function Home() {
   const [toast, setToast] = useState({ msg:"", show:false });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Handle cross-page scroll navigation (e.g. "Reviews" clicked from /menu)
+  useEffect(() => {
+    const target = sessionStorage.getItem("__scrollTo");
+    if (target) {
+      sessionStorage.removeItem("__scrollTo");
+      const attempt = (tries: number) => {
+        const el = document.querySelector(target);
+        if (el) { el.scrollIntoView({ behavior: "smooth" }); }
+        else if (tries > 0) { setTimeout(() => attempt(tries - 1), 200); }
+      };
+      setTimeout(() => attempt(8), 400);
+    }
+  }, []);
+
   const bg      = isDark ? "#080706"               : "#FAF7F2";
   const bg2     = isDark ? "#0E0C0A"               : "#F0EAE0";
   const fg      = isDark ? "#FFFFFF"               : "#0D0B09";

@@ -62,10 +62,9 @@ export default function Navbar() {
     if (target.startsWith("/")) {
       router.push(target);
     } else if (pathname !== "/") {
+      // Store the scroll target so homepage can pick it up after load
+      sessionStorage.setItem("__scrollTo", target);
       router.push("/");
-      setTimeout(() => {
-        document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
-      }, 340);
     } else {
       document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
     }
