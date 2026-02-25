@@ -115,14 +115,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
-  const updateProfile = async (
-    data: Partial<Pick<Profile, "full_name" | "phone" | "avatar_url">>
-  ): Promise<AuthResult> => {
-    if (!user) return { error: { name: "AuthError", message: "Not authenticated", status: 401 } as AuthError };
-    const { error } = await supabase.from("profiles").update(data).eq("id", user.id);
-    if (!error) await fetchProfile(user.id);
-    return { error };
-  };
+const updateProfile = async (
+  data: Partial<Pick<Profile, "full_name" | "phone" | "avatar_url">>
+): Promise<AuthResult> => {
+  if (!user) {
+    return {
+      error: {
+        name: "AuthError",
+        message: "Not authenticated",
+        status: 401,
+      } as AuthError,
+    };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(data)
+    .eq("id", user.id);
+
+  if (error) {
+    return {
+      error: {
+        name: "AuthError",
+        message: error.message,
+        status: 400,
+      } as AuthError,
+    };
+  }
+
+  await fetchProfile(user.id);
+
+  return { error: null };
+};
 
   return (
     <AuthContext.Provider value={{
