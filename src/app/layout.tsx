@@ -23,19 +23,18 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Oga Madam Kitchen | Authentic Nigerian Flavors in Minneapolis",
+  title: "Oga Madam Kitchen | Authentic African Flavors in Minneapolis",
   description:
-    "Experience bold, authentic Nigerian cuisine in Minneapolis, MN. Order online for pickup or local delivery. Fresh, bold, made with love.",
+    "Experience bold, authentic African cuisine in Minneapolis, MN. Order online for pickup or local delivery. Fresh, bold, made with love.",
   keywords: [
-    "Nigerian restaurant Minneapolis",
-    "West African food MN",
+    "African restaurant Minneapolis",
+    "African food MN",
     "jollof rice Minneapolis",
     "egusi soup",
-    "Nigerian food delivery",
   ],
   openGraph: {
     title: "Oga Madam Kitchen",
-    description: "Authentic Nigerian Flavors in Minneapolis, MN",
+    description: "Authentic African Flavors in Minneapolis, MN",
     type: "website",
   },
 };
