@@ -5,17 +5,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import { useCart } from "@/context/CartContext";
+import { useNotifications } from "@/context/NotificationContext"; // ← WIRED IN (replaces local MOCK_NOTIFS)
 
 const GOLD  = "#D4A843";
 const GOLD2 = "#F0C060";
 const RED   = "#C0392B";
-
-/* ── Static mock notifications (replace with Supabase later) ── */
-const MOCK_NOTIFS = [
-  { id: "n1", icon: "🍽️", title: "Order #0041 Delivered!",   body: "Your Jollof Rice & Chicken has arrived. Enjoy!",   time: "2m ago",  read: false, actionLabel: "Track",   actionHref: "/track/0041" },
-  { id: "n2", icon: "🎁", title: "You earned 50 loyalty pts", body: "Keep ordering to reach Gold tier.",                 time: "1h ago",  read: false, actionLabel: "View",    actionHref: "/profile"   },
-  { id: "n3", icon: "🔥", title: "Weekend Special: 15% off", body: "Use code WEEKEND15 at checkout this Sat & Sun.",   time: "3h ago",  read: true,  actionLabel: "Order",   actionHref: "/order"     },
-];
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme();
@@ -23,13 +17,13 @@ export default function Navbar() {
   const pathname = usePathname();
   const router   = useRouter();
 
-  const [scrolled,   setScrolled]   = useState(false);
-  const [activeTab,  setActiveTab]  = useState("home");
-  const [notifOpen,  setNotifOpen]  = useState(false);
-  const [notifs,     setNotifs]     = useState(MOCK_NOTIFS);
-  const panelRef = useRef<HTMLDivElement>(null);
+  // ─── All notification state comes from shared context now ───────────────────
+  const { notifications, unreadCount, markRead, markAllRead, dismiss } = useNotifications();
 
-  const unreadCount = notifs.filter(n => !n.read).length;
+  const [scrolled,  setScrolled]  = useState(false);
+  const [activeTab, setActiveTab] = useState("home");
+  const [notifOpen, setNotifOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   /* ── Scroll ── */
   useEffect(() => {
@@ -38,7 +32,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ── Active tab ── */
+  /* ── Active tab from pathname ── */
   useEffect(() => {
     if      (pathname === "/cart")    setActiveTab("cart");
     else if (pathname === "/profile") setActiveTab("profile");
@@ -46,23 +40,22 @@ export default function Navbar() {
     else                              setActiveTab("home");
   }, [pathname]);
 
-  /* ── Close panel on outside click ── */
+  /* ── Close notif panel on outside click ── */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node))
         setNotifOpen(false);
-      }
     };
     if (notifOpen) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [notifOpen]);
 
+  /* ── Navigation helper — handles both page nav and homepage section scrolls ── */
   const goTo = (target: string, tab: string) => {
     setActiveTab(tab);
     if (target.startsWith("/")) {
       router.push(target);
     } else if (pathname !== "/") {
-      // Store the scroll target so homepage can pick it up after load
       sessionStorage.setItem("__scrollTo", target);
       router.push("/");
     } else {
@@ -70,11 +63,7 @@ export default function Navbar() {
     }
   };
 
-  const markRead    = (id: string) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  const markAllRead = ()           => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
-  const dismiss     = (id: string) => setNotifs(prev => prev.filter(n => n.id !== id));
-
-  const handleNotifClick = (n: typeof MOCK_NOTIFS[0]) => {
+  const handleNotifClick = (n: typeof notifications[0]) => {
     markRead(n.id);
     if (n.actionHref) { router.push(n.actionHref); setNotifOpen(false); }
   };
@@ -101,12 +90,16 @@ export default function Navbar() {
 
   const isOnProfile = pathname === "/profile";
   const isOnCart    = pathname === "/cart";
+  const isOnAbout   = pathname === "/about";
+  const isOnMenu    = pathname === "/menu";
 
+  /* ── Desktop nav links ── now includes About ── */
   const navLinks = [
-    { href: "/menu",          label: "Menu"      },
-    { href: "#story",         label: "Our Story" },
-    { href: "#reviews",       label: "Reviews"   },
-    { href: "#order-section", label: "Order"     },
+    { label: "Menu",      target: "/menu",          isPage: true  },
+    { label: "About",     target: "/about",         isPage: true  },
+    { label: "Our Story", target: "#story",         isPage: false },
+    { label: "Reviews",   target: "#reviews",       isPage: false },
+    { label: "Order",     target: "#order-section", isPage: false },
   ];
 
   /* ── Mobile bottom tabs ── */
@@ -172,7 +165,73 @@ export default function Navbar() {
     </button>
   );
 
-  /* ── Desktop Notification Panel ── */
+  /* ── Shared notification list — used in both desktop panel & mobile panel ── */
+  const NotifList = ({ compact }: { compact?: boolean }) => (
+    <>
+      {notifications.length === 0 ? (
+        <div style={{ padding: compact ? "32px 16px" : "48px 24px", textAlign: "center" }}>
+          <div style={{ fontSize: compact ? 32 : 40, marginBottom: 12 }}>🔔</div>
+          <p style={{ fontSize: compact ? 13 : 14, color: fg3, fontWeight: 500 }}>All caught up!</p>
+        </div>
+      ) : (
+        notifications.map(n => (
+          <div key={n.id}
+            onClick={() => handleNotifClick(n)}
+            style={{
+              padding: compact ? "12px 16px" : "14px 20px",
+              cursor: "pointer",
+              background: n.read ? "transparent" : (isDark ? "rgba(212,168,67,0.04)" : "rgba(212,168,67,0.03)"),
+              borderLeft: n.read ? "3px solid transparent" : `3px solid ${GOLD}`,
+              borderBottom: `1px solid ${panelBdr}`,
+              transition: "background .2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)")}
+            onMouseLeave={e => (e.currentTarget.style.background = n.read ? "transparent" : (isDark ? "rgba(212,168,67,0.04)" : "rgba(212,168,67,0.03)"))}>
+            <div style={{ display: "flex", gap: compact ? 10 : 12, alignItems: "flex-start" }}>
+              <div style={{
+                width: compact ? 34 : 40, height: compact ? 34 : 40,
+                borderRadius: compact ? 10 : 12, flexShrink: 0,
+                background: `${GOLD}18`, border: `1px solid ${GOLD}33`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: compact ? 15 : 18,
+              }}>{n.icon}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <span style={{ fontSize: compact ? 12 : 13, fontWeight: 700, color: fg, lineHeight: 1.3 }}>{n.title}</span>
+                    {!n.read && <span style={{ width: 6, height: 6, borderRadius: "50%", background: GOLD, flexShrink: 0 }}/>}
+                  </div>
+                  <button
+                    onClick={e => { e.stopPropagation(); dismiss(n.id); }}
+                    style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                      border: `1px solid ${panelBdr}`, background: "transparent",
+                      color: fg3, fontSize: 13, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(192,57,43,.15)"; (e.currentTarget as HTMLElement).style.color = "#e74c3c"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = fg3; }}>
+                    ×
+                  </button>
+                </div>
+                <p style={{ fontSize: compact ? 11 : 12, color: fg2, lineHeight: 1.55, margin: "4px 0 8px" }}>{n.body}</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: compact ? 9 : 10, color: fg3 }}>{n.time}</span>
+                  {n.actionLabel && (
+                    <span style={{ fontSize: compact ? 9 : 10, fontWeight: 700, letterSpacing: ".06em",
+                      textTransform: "uppercase", padding: compact ? "3px 8px" : "4px 10px",
+                      borderRadius: 999, background: GOLD, color: "#000" }}>
+                      {n.actionLabel} →
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+    </>
+  );
+
+  /* ── Desktop notification panel ── */
   const NotificationPanel = () => (
     <div ref={panelRef} style={{
       position: "absolute", top: "calc(100% + 12px)", right: 0,
@@ -185,12 +244,12 @@ export default function Navbar() {
       zIndex: 600, display: "flex", flexDirection: "column",
       animation: "notifSlideIn .25s cubic-bezier(.23,1,.32,1) both",
     }}>
-      {/* Header */}
       <div style={{ padding: "18px 20px 14px", borderBottom: `1px solid ${panelBdr}`, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
-              fontSize: 20, fontWeight: 600, color: fg }}>Notifications</span>
+            <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 600, color: fg }}>
+              Notifications
+            </span>
             {unreadCount > 0 && (
               <span style={{ fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 999,
                 background: `${GOLD}22`, color: GOLD, border: `1px solid ${GOLD}44` }}>
@@ -210,94 +269,62 @@ export default function Navbar() {
           )}
         </div>
       </div>
-
-      {/* List */}
-      <div style={{ overflowY: "auto", flex: 1, scrollbarWidth: "thin",
-        scrollbarColor: `${GOLD}44 transparent` }}>
-        {notifs.length === 0 ? (
-          <div style={{ padding: "48px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
-            <p style={{ fontSize: 14, color: fg3, fontWeight: 500 }}>All caught up!</p>
-          </div>
-        ) : (
-          notifs.map(n => (
-            <div key={n.id} onClick={() => handleNotifClick(n)}
-              style={{ padding: "14px 20px", cursor: "pointer",
-                background: n.read ? "transparent" : (isDark ? "rgba(212,168,67,0.04)" : "rgba(212,168,67,0.03)"),
-                borderLeft: n.read ? "3px solid transparent" : `3px solid ${GOLD}`,
-                borderBottom: `1px solid ${panelBdr}`,
-                transition: "background .2s" }}
-              onMouseEnter={e => (e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)")}
-              onMouseLeave={e => (e.currentTarget.style.background = n.read ? "transparent" : (isDark ? "rgba(212,168,67,0.04)" : "rgba(212,168,67,0.03)"))}>
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-                  background: `${GOLD}18`, border: `1px solid ${GOLD}33`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 18 }}>{n.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: fg, lineHeight: 1.3 }}>{n.title}</span>
-                      {!n.read && (
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: GOLD, flexShrink: 0 }}/>
-                      )}
-                    </div>
-                    <button onClick={e => { e.stopPropagation(); dismiss(n.id); }}
-                      style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                        border: `1px solid ${panelBdr}`, background: "transparent",
-                        color: fg3, fontSize: 13, cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        transition: "all .2s" }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.background = "rgba(192,57,43,.15)";
-                        (e.currentTarget as HTMLElement).style.color = "#e74c3c";
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.background = "transparent";
-                        (e.currentTarget as HTMLElement).style.color = fg3;
-                      }}>×</button>
-                  </div>
-                  <p style={{ fontSize: 12, color: fg2, lineHeight: 1.58, margin: "4px 0 8px" }}>{n.body}</p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 10, color: fg3 }}>{n.time}</span>
-                    {n.actionLabel && (
-                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".06em",
-                        textTransform: "uppercase", padding: "4px 10px", borderRadius: 999,
-                        background: GOLD, color: "#000" }}>
-                        {n.actionLabel} →
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      <div style={{ overflowY: "auto", flex: 1, scrollbarWidth: "thin", scrollbarColor: `${GOLD}44 transparent` }}>
+        <NotifList />
       </div>
-
-      {/* Footer */}
-      <div style={{ padding: "12px 20px", borderTop: `1px solid ${panelBdr}`,
-        flexShrink: 0, textAlign: "center" }}>
-        <button onClick={() => { goTo("/profile", "profile"); setNotifOpen(false); }}
+      <div style={{ padding: "12px 20px", borderTop: `1px solid ${panelBdr}`, flexShrink: 0, textAlign: "center" }}>
+        <button
+          onClick={() => { goTo("/profile", "profile"); setNotifOpen(false); }}
           style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase",
             color: GOLD, background: "none", border: "none", cursor: "pointer" }}
           onMouseEnter={e => (e.currentTarget.style.opacity = ".7")}
           onMouseLeave={e => (e.currentTarget.style.opacity = "1")}>
-          View Notification Settings →
+          Notification Settings →
         </button>
       </div>
     </div>
   );
 
+  /* ── Bell button shared between desktop + mobile ── */
+  const BellButton = ({ size, isMob }: { size: number; isMob?: boolean }) => (
+    <button
+      onClick={() => setNotifOpen(v => !v)}
+      aria-label="Notifications"
+      style={{
+        position: "relative", width: size, height: size, borderRadius: "50%",
+        border: `1px solid ${notifOpen ? `${GOLD}66` : (isMob ? mobBorder : "rgba(212,168,67,0.22)")}`,
+        background: notifOpen ? `${GOLD}12` : (isMob ? notifBg : "rgba(212,168,67,0.07)"),
+        display: "flex", alignItems: "center", justifyContent: "center",
+        cursor: "pointer", transition: "all 0.3s",
+      }}>
+      <svg width="17" height="17" fill="none" viewBox="0 0 24 24"
+        stroke={unreadCount > 0 ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)")}
+        strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+      {unreadCount > 0 && (
+        <span style={{
+          position: "absolute", top: isMob ? -2 : -5, right: isMob ? -2 : -5,
+          minWidth: isMob ? 16 : 18, height: isMob ? 16 : 18, borderRadius: 999,
+          background: RED, color: "#fff", fontSize: 9, fontWeight: 800,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "0 3px",
+          border: `2px solid ${isDark ? "#080706" : "#FAF7F2"}`,
+          animation: isMob ? "none" : "pulse 2s ease-in-out infinite",
+        }}>
+          {unreadCount > 9 ? "9+" : unreadCount}
+        </span>
+      )}
+    </button>
+  );
+
   return (
     <>
       <style>{`
-        @keyframes notifSlideIn {
-          from { opacity:0; transform:translateY(-10px) scale(.97); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
+        @keyframes notifSlideIn { from{opacity:0;transform:translateY(-10px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
         @keyframes cartPop { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 100%{transform:scale(1)} }
-        @keyframes pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.5)} 50%{box-shadow:0 0 0 5px rgba(192,57,43,0)} }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.5)} 50%{box-shadow:0 0 0 5px rgba(192,57,43,0)} }
         .nav-desktop { display: flex; }
         .nav-mob-top { display: none; }
         .nav-mob-bot { display: none; }
@@ -308,9 +335,7 @@ export default function Navbar() {
         }
       `}</style>
 
-      {/* ══════════════════════════════════════
-          DESKTOP NAV
-      ══════════════════════════════════════ */}
+      {/* ══ DESKTOP NAV ══ */}
       <nav className="nav-desktop" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
         padding: scrolled ? "12px 56px" : "22px 56px",
@@ -329,108 +354,84 @@ export default function Navbar() {
         </Link>
 
         {/* Nav links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
-          {navLinks.map(link => (
-            <a key={link.href} href={link.href}
-              onClick={e => { e.preventDefault(); goTo(link.href, link.href === "/menu" ? "menu" : "home"); }}
-              style={{ color: pathname === link.href ? GOLD : linkColor,
-                textDecoration: "none", fontSize: 11,
-                letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500,
-                transition: "color 0.3s", cursor: "none",
-                borderBottom: pathname === link.href ? `1px solid ${GOLD}` : "1px solid transparent",
-                paddingBottom: 2 }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = GOLD; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = pathname === link.href ? GOLD : linkColor; }}>
-              {link.label}
-            </a>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          {navLinks.map(link => {
+            const isActive = link.isPage
+              ? pathname === link.target
+              : false; // anchor links never "active" via pathname
+            return (
+              <a
+                key={link.label}
+                href={link.target}
+                onClick={e => {
+                  e.preventDefault();
+                  if (link.isPage) {
+                    goTo(link.target, link.target === "/menu" ? "menu" : "home");
+                  } else {
+                    goTo(link.target, "home");
+                  }
+                }}
+                style={{
+                  color: isActive ? GOLD : linkColor,
+                  textDecoration: "none", fontSize: 11,
+                  letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500,
+                  transition: "color 0.3s", cursor: "none",
+                  borderBottom: isActive ? `1px solid ${GOLD}` : "1px solid transparent",
+                  paddingBottom: 2,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = GOLD; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = isActive ? GOLD : linkColor; }}>
+                {link.label}
+              </a>
+            );
+          })}
         </div>
 
-        {/* Right: theme + notif + profile + cart + order now */}
+        {/* Right controls */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
           <ThemeToggle />
 
-          {/* Notification Bell */}
+          {/* Notification bell + panel */}
           <div style={{ position: "relative" }}>
-            <button onClick={() => setNotifOpen(v => !v)} aria-label="Notifications"
-              style={{ position: "relative", width: 40, height: 40, borderRadius: "50%",
-                border: `1px solid ${notifOpen ? `${GOLD}66` : "rgba(212,168,67,0.22)"}`,
-                background: notifOpen ? `${GOLD}12` : "rgba(212,168,67,0.07)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "none", transition: "all 0.3s" }}>
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24"
-                stroke={unreadCount > 0 ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)")}
-                strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-              </svg>
-              {unreadCount > 0 && (
-                <span style={{ position: "absolute", top: -5, right: -5,
-                  minWidth: 18, height: 18, borderRadius: 999,
-                  background: RED, color: "#fff",
-                  fontSize: 9, fontWeight: 800,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: "0 4px",
-                  border: `2px solid ${isDark ? "#080706" : "#FAF7F2"}`,
-                  animation: "pulse 2s ease-in-out infinite" }}>
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
+            <BellButton size={40} />
             {notifOpen && <NotificationPanel />}
           </div>
 
-          {/* Profile icon */}
-          <Link href="/profile" title="My Profile"
-            style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+          {/* Profile */}
+          <Link href="/profile"
+            style={{
+              position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
               width: 40, height: 40, borderRadius: "50%",
               border: `1px solid ${isOnProfile ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)"}`,
               background: isOnProfile ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)",
-              textDecoration: "none", transition: "all 0.3s", cursor: "none" }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(212,168,67,0.6)";
-              (e.currentTarget as HTMLElement).style.background  = "rgba(212,168,67,0.14)";
+              textDecoration: "none", transition: "all 0.3s", cursor: "none",
             }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = isOnProfile ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)";
-              (e.currentTarget as HTMLElement).style.background  = isOnProfile ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)";
-            }}>
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(212,168,67,0.6)"; (e.currentTarget as HTMLElement).style.background = "rgba(212,168,67,0.14)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = isOnProfile ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)"; (e.currentTarget as HTMLElement).style.background = isOnProfile ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)"; }}>
             <svg width="17" height="17" fill="none" viewBox="0 0 24 24"
-              stroke={isOnProfile ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)")}
-              strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              stroke={isOnProfile ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)")} strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            {isOnProfile && (
-              <span style={{ position: "absolute", bottom: -3, left: "50%", transform: "translateX(-50%)",
-                width: 4, height: 4, borderRadius: "50%", background: GOLD }}/>
-            )}
+            {isOnProfile && <span style={{ position: "absolute", bottom: -3, left: "50%", transform: "translateX(-50%)", width: 4, height: 4, borderRadius: "50%", background: GOLD }}/>}
           </Link>
 
-          {/* Cart icon */}
-          <Link href="/cart" title="Cart"
-            style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+          {/* Cart */}
+          <Link href="/cart"
+            style={{
+              position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
               width: 40, height: 40, borderRadius: "50%",
               border: `1px solid ${isOnCart ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)"}`,
               background: isOnCart ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)",
-              textDecoration: "none", transition: "all 0.3s", cursor: "none" }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(212,168,67,0.6)";
-              (e.currentTarget as HTMLElement).style.background  = "rgba(212,168,67,0.14)";
+              textDecoration: "none", transition: "all 0.3s", cursor: "none",
             }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = isOnCart ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)";
-              (e.currentTarget as HTMLElement).style.background  = isOnCart ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)";
-            }}>
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(212,168,67,0.6)"; (e.currentTarget as HTMLElement).style.background = "rgba(212,168,67,0.14)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = isOnCart ? "rgba(212,168,67,0.6)" : "rgba(212,168,67,0.22)"; (e.currentTarget as HTMLElement).style.background = isOnCart ? "rgba(212,168,67,0.14)" : "rgba(212,168,67,0.07)"; }}>
             <svg width="17" height="17" fill="none" viewBox="0 0 24 24"
-              stroke={isOnCart ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)")}
-              strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              stroke={isOnCart ? GOLD : (isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)")} strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
             {cartCount > 0 && (
-              <span style={{ position: "absolute", top: -4, right: -4,
-                minWidth: 17, height: 17, borderRadius: "50%",
+              <span style={{ position: "absolute", top: -4, right: -4, minWidth: 17, height: 17, borderRadius: "50%",
                 background: GOLD, color: "#000", fontSize: 9, fontWeight: 800,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 border: `2px solid ${isDark ? "#080706" : "#FAF7F2"}`,
@@ -440,27 +441,17 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Order Now CTA */}
+          {/* Order Now */}
           <Link href="/order"
-            style={{ background: GOLD, color: "#000", padding: "10px 22px",
-              borderRadius: 999, fontSize: 12, fontWeight: 700,
-              letterSpacing: "0.08em", textTransform: "uppercase",
+            style={{ background: GOLD, color: "#000", padding: "10px 22px", borderRadius: 999,
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
               textDecoration: "none", transition: "all 0.3s", cursor: "none",
               display: "flex", alignItems: "center", gap: 6 }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background  = GOLD2;
-              (e.currentTarget as HTMLElement).style.transform   = "translateY(-2px)";
-              (e.currentTarget as HTMLElement).style.boxShadow   = "0 10px 30px rgba(212,168,67,0.4)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background  = GOLD;
-              (e.currentTarget as HTMLElement).style.transform   = "translateY(0)";
-              (e.currentTarget as HTMLElement).style.boxShadow   = "none";
-            }}>
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = GOLD2; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 30px rgba(212,168,67,0.4)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = GOLD; (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}>
             Order Now
             {cartCount > 0 && (
-              <span style={{ background: "#000", color: GOLD, borderRadius: 999,
-                padding: "1px 6px", fontSize: 10, fontWeight: 800 }}>
+              <span style={{ background: "#000", color: GOLD, borderRadius: 999, padding: "1px 6px", fontSize: 10, fontWeight: 800 }}>
                 {cartCount}
               </span>
             )}
@@ -468,9 +459,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ══════════════════════════════════════
-          MOBILE TOP BAR
-      ══════════════════════════════════════ */}
+      {/* ══ MOBILE TOP BAR ══ */}
       <div className="nav-mob-top" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
         padding: "10px 18px",
@@ -488,34 +477,10 @@ export default function Navbar() {
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
-          {/* Mobile notification bell */}
+          {/* Mobile bell */}
           <div style={{ position: "relative" }}>
-            <button aria-label="Notifications" onClick={() => setNotifOpen(v => !v)}
-              style={{ position: "relative", width: 38, height: 38, borderRadius: "50%",
-                border: `1px solid ${notifOpen ? `${GOLD}55` : mobBorder}`,
-                background: notifOpen ? `${GOLD}10` : notifBg,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", transition: "all .3s" }}>
-              <svg width="17" height="17" fill="none" viewBox="0 0 24 24"
-                stroke={unreadCount > 0 ? GOLD : (isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.65)")}
-                strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-              </svg>
-              {unreadCount > 0 && (
-                <span style={{ position: "absolute", top: -2, right: -2,
-                  minWidth: 16, height: 16, borderRadius: 999,
-                  background: RED, color: "#fff",
-                  fontSize: 9, fontWeight: 800,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: "0 3px",
-                  border: `2px solid ${isDark ? "#080706" : "#FAF7F2"}` }}>
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
-
-            {/* Mobile notification panel */}
+            <BellButton size={38} isMob />
+            {/* Mobile notif panel — full width, fixed position */}
             {notifOpen && (
               <div ref={panelRef} style={{
                 position: "fixed", top: 64, left: 8, right: 8, zIndex: 600,
@@ -525,12 +490,12 @@ export default function Navbar() {
                 display: "flex", flexDirection: "column",
                 animation: "notifSlideIn .25s cubic-bezier(.23,1,.32,1) both",
               }}>
-                {/* Header */}
                 <div style={{ padding: "16px 16px 12px", borderBottom: `1px solid ${panelBdr}`, flexShrink: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif",
-                        fontSize: 18, fontWeight: 600, color: fg }}>Notifications</span>
+                      <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 18, fontWeight: 600, color: fg }}>
+                        Notifications
+                      </span>
                       {unreadCount > 0 && (
                         <span style={{ fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 999,
                           background: `${GOLD}22`, color: GOLD, border: `1px solid ${GOLD}44` }}>
@@ -541,70 +506,28 @@ export default function Navbar() {
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                       {unreadCount > 0 && (
                         <button onClick={markAllRead}
-                          style={{ fontSize: 10, color: fg3, background: "none", border: "none",
-                            cursor: "pointer", fontWeight: 600, textTransform: "uppercase" }}>
+                          style={{ fontSize: 10, color: fg3, background: "none", border: "none", cursor: "pointer", fontWeight: 600, textTransform: "uppercase" }}>
                           Read all
                         </button>
                       )}
                       <button onClick={() => setNotifOpen(false)}
-                        style={{ fontSize: 20, color: fg3, background: "none", border: "none",
-                          cursor: "pointer", lineHeight: 1, padding: "0 2px" }}>×</button>
+                        style={{ fontSize: 20, color: fg3, background: "none", border: "none", cursor: "pointer", lineHeight: 1, padding: "0 2px" }}>
+                        ×
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                {/* List */}
                 <div style={{ overflowY: "auto", flex: 1 }}>
-                  {notifs.length === 0 ? (
-                    <div style={{ padding: "36px 16px", textAlign: "center" }}>
-                      <div style={{ fontSize: 32, marginBottom: 8 }}>🔔</div>
-                      <p style={{ fontSize: 13, color: fg3 }}>All caught up!</p>
-                    </div>
-                  ) : (
-                    notifs.map(n => (
-                      <div key={n.id} onClick={() => handleNotifClick(n)}
-                        style={{ padding: "12px 16px", cursor: "pointer",
-                          background: n.read ? "transparent" : `${GOLD}06`,
-                          borderLeft: n.read ? "3px solid transparent" : `3px solid ${GOLD}`,
-                          borderBottom: `1px solid ${panelBdr}` }}>
-                        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                          <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                            background: `${GOLD}18`, display: "flex", alignItems: "center",
-                            justifyContent: "center", fontSize: 15 }}>{n.icon}</div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
-                              <span style={{ fontSize: 12, fontWeight: 700, color: fg, lineHeight: 1.3 }}>{n.title}</span>
-                              <button onClick={e => { e.stopPropagation(); dismiss(n.id); }}
-                                style={{ fontSize: 16, color: fg3, background: "none", border: "none",
-                                  cursor: "pointer", flexShrink: 0, lineHeight: 1 }}>×</button>
-                            </div>
-                            <p style={{ fontSize: 11, color: fg2, lineHeight: 1.5, margin: "3px 0 6px" }}>{n.body}</p>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                              <span style={{ fontSize: 9, color: fg3 }}>{n.time}</span>
-                              {n.actionLabel && (
-                                <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase",
-                                  padding: "3px 8px", borderRadius: 999, background: GOLD, color: "#000" }}>
-                                  {n.actionLabel}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
+                  <NotifList compact />
                 </div>
               </div>
             )}
           </div>
-
           <ThemeToggle mobile />
         </div>
       </div>
 
-      {/* ══════════════════════════════════════
-          MOBILE BOTTOM NAV
-      ══════════════════════════════════════ */}
+      {/* ══ MOBILE BOTTOM NAV ══ */}
       <nav className="nav-mob-bot" style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 500,
         background: mobBotBg,
@@ -623,34 +546,25 @@ export default function Navbar() {
                 alignItems: "center", justifyContent: "center",
                 padding: "10px 4px 12px", position: "relative",
                 transition: "transform 0.2s", background: "none", border: "none", cursor: "pointer" }}>
-              {/* Active bar */}
               {active && (
                 <span style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
                   width: 28, height: 3, borderRadius: "0 0 6px 6px",
                   background: GOLD, boxShadow: "0 2px 10px rgba(212,168,67,0.7)" }}/>
               )}
-
-              {/* Icon pill */}
               <span style={{ display: "flex", alignItems: "center", justifyContent: "center",
                 width: 42, height: 38, borderRadius: 14,
                 background: active ? "rgba(212,168,67,0.1)" : "transparent",
                 transition: "background 0.25s", position: "relative" }}>
                 {tab.icon(active)}
-                {/* Cart badge */}
                 {tab.id === "cart" && cartCount > 0 && (
-                  <span style={{ position: "absolute", top: 3, right: 3,
-                    minWidth: 14, height: 14, borderRadius: 999,
-                    background: GOLD, color: "#000",
-                    fontSize: 8, fontWeight: 800,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    padding: "0 2px" }}>
+                  <span style={{ position: "absolute", top: 3, right: 3, minWidth: 14, height: 14, borderRadius: 999,
+                    background: GOLD, color: "#000", fontSize: 8, fontWeight: 800,
+                    display: "flex", alignItems: "center", justifyContent: "center", padding: "0 2px" }}>
                     {cartCount > 9 ? "9+" : cartCount}
                   </span>
                 )}
               </span>
-
-              <span style={{ fontSize: 10, fontWeight: active ? 700 : 400,
-                color: active ? GOLD : mobText,
+              <span style={{ fontSize: 10, fontWeight: active ? 700 : 400, color: active ? GOLD : mobText,
                 letterSpacing: "0.01em", marginTop: 2, transition: "color 0.25s" }}>
                 {tab.label}
               </span>
